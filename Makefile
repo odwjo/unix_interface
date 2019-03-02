@@ -1,4 +1,4 @@
-VPATH = ../lib/:../dir_links/
+VPATH = ../lib/:../dir_links/:../inotify/
 
 CC=gcc
 #CFLAGS=
@@ -11,7 +11,8 @@ space := $(empty) $(empty)
 CIDIR = $(if $(IDIR), $(addprefix -I, $(IDIR)), $(empty))
 CLDIR = $(if $(LDIR), $(addprefix -L, $(LDIR)), $(empty))
 
-BIN = t_unlink list_files testoffset nftw_dir_tree view_symlink
+BIN = t_unlink list_files testoffset nftw_dir_tree view_symlink\
+	  t_dirbasename demo_inotify watcher
 
 .PHONY:all
 
@@ -25,6 +26,9 @@ tt += $(OBJS)
 .PHONY : test
 test:
 	@echo $(tt)
+
+watcher : watcher.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)	
 
 t_unlink : t_unlink.o $(OBJS)
 	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
@@ -41,6 +45,11 @@ view_symlink : view_symlink.o $(OBJS)
 nftw_dir_tree : nftw_dir_tree.o $(OBJS)
 	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
 
+t_dirbasename : t_dirbasename.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+demo_inotify: demo_inotify.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
 #src = $(wildcard *.c)
 #srcname = $(notdir $(basename $(src)))
 
