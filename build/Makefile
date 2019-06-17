@@ -1,4 +1,4 @@
-VPATH = ../lib/:../dir_links/:../inotify/:../signals/:../timers/:../procexec/:../threads/
+VPATH = ../lib/:../dir_links/:../inotify/:../signals/:../timers/:../procexec/:../threads/:../pgsjc/:../procpri/:../procres/:../daemons/:../cap/:../loginacct/
 
 CC=gcc
 #CFLAGS=
@@ -22,13 +22,18 @@ BIN = t_unlink list_files testoffset nftw_dir_tree view_symlink\
 	  make_zombie multi_SIGCHLD test_three make_zombie_v2\
 	  envargs t_execve t_system my_execlp acct_on acct_view\
 	  t_clone simple_thread thread_incr thread_incr_mutex\
-	  thread_multijoin
+	  thread_multijoin strerror_test test_tls thread_cancel\
+	  thread_cleanup t_setsid catch_SIGHUP disc_SIGHUP job_mon\
+	  handling_SIGTSTP orphaned_pgrp_SIGHUP test_chgpgid\
+	  t_setpriority sched_set sched_view test_getusage rusage\
+	  myecho daemon_SIGHUP check_password_caps dump_utmpx
 
 .PHONY:all
 
 all:$(BIN)
 #obj = $($(BIN):%:%.o)
 LIBSRCS = $(wildcard ../lib/*.c)
+LIBSRCS += ../daemons/become_daemon.c
 OBJS = $(addsuffix .o,$(notdir $(basename $(LIBSRCS))))
 DEPS = $(subst .o,.d, $(OBJS))
 tt = $(DEPS)
@@ -37,6 +42,67 @@ tt += $(OBJS)
 test:
 	@echo $(tt)
 
+dump_utmpx : dump_utmpx.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+check_password_caps : check_password_caps.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR) -lcap -lcrypt
+
+daemon_SIGHUP : daemon_SIGHUP.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+myecho : myecho.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+rusage : rusage.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+test_getusage : test_getusage.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+sched_view : sched_view.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+sched_set : sched_set.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+t_setpriority : t_setpriority.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+test_chgpgid : test_chgpgid.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+orphaned_pgrp_SIGHUP : orphaned_pgrp_SIGHUP.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+handling_SIGTSTP : handling_SIGTSTP.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+job_mon : job_mon.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+disc_SIGHUP : disc_SIGHUP.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+catch_SIGHUP : catch_SIGHUP.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+t_setsid : t_setsid.o $(OBJS)
+	$(CC) -pthread $^ -o $@ $(CIDIR) $(CLDIR)
+
+thread_cleanup : thread_cleanup.o $(OBJS)
+	$(CC) -pthread $^ -o $@ $(CIDIR) $(CLDIR)
+
+thread_cancel : thread_cancel.o $(OBJS)
+	$(CC) -pthread $^ -o $@ $(CIDIR) $(CLDIR)
+
+strerror_test : strerror_test.o $(OBJS)
+
+test_tls : test_tls.o $(OBJS)
+	$(CC) -pthread $^ -o $@ $(CIDIR) $(CLDIR)
+
+strerror_test : strerror_test.o $(OBJS)
+	$(CC) -pthread $^ -o $@ $(CIDIR) $(CLDIR)
 
 thread_multijoin : thread_multijoin.o $(OBJS)
 	$(CC) -pthread $^ -o $@ $(CIDIR) $(CLDIR)
