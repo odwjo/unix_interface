@@ -1,4 +1,4 @@
-VPATH = ../lib/:../dir_links/:../inotify/:../signals/:../timers/:../procexec/:../threads/:../pgsjc/:../procpri/:../procres/:../daemons/:../cap/:../loginacct/
+VPATH = ../lib/:../dir_links/:../inotify/:../signals/:../timers/:../procexec/:../threads/:../pgsjc/:../procpri/:../procres/:../daemons/:../cap/:../loginacct/:../shlibs/:../pipes:../svipc/:../svmsg/
 
 CC=gcc
 #CFLAGS=
@@ -26,7 +26,11 @@ BIN = t_unlink list_files testoffset nftw_dir_tree view_symlink\
 	  thread_cleanup t_setsid catch_SIGHUP disc_SIGHUP job_mon\
 	  handling_SIGTSTP orphaned_pgrp_SIGHUP test_chgpgid\
 	  t_setpriority sched_set sched_view test_getusage rusage\
-	  myecho daemon_SIGHUP check_password_caps dump_utmpx
+	  myecho daemon_SIGHUP check_password_caps dump_utmpx\
+	  utmpx_login view_lastlog dynload simple_pipe pipe_sync\
+	  pipe_ls_wc popen_glob fifo_seqnum_server fifo_seqnum_client\
+	  svmsg_create svmsg_send svmsg_receive svmsg_rm svmsg_chqbytes\
+	  svmsg_ls svmsg_file_server svmsg_file_client
 
 .PHONY:all
 
@@ -41,6 +45,57 @@ tt += $(OBJS)
 .PHONY : test
 test:
 	@echo $(tt)
+
+svmsg_file_client : svmsg_file_client.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svmsg_file_server : svmsg_file_server.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svmsg_ls : svmsg_ls.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svmsg_chqbytes : svmsg_chqbytes.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svmsg_rm : svmsg_rm.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svmsg_receive : svmsg_receive.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svmsg_send : svmsg_send.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svmsg_create : svmsg_create.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+fifo_seqnum_client : fifo_seqnum_client.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+fifo_seqnum_server: fifo_seqnum_server.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+popen_glob : popen_glob.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+pipe_ls_wc : pipe_ls_wc.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+pipe_sync : pipe_sync.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+simple_pipe : simple_pipe.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+dynload : dynload.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR) -ldl
+
+view_lastlog : view_lastlog.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+utmpx_login : utmpx_login.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
 
 dump_utmpx : dump_utmpx.o $(OBJS)
 	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
