@@ -1,8 +1,8 @@
-VPATH = ../lib/:../dir_links/:../inotify/:../signals/:../timers/:../procexec/:../threads/:../pgsjc/:../procpri/:../procres/:../daemons/:../cap/:../loginacct/:../shlibs/:../pipes:../svipc/:../svmsg/
+VPATH = ../lib/:../dir_links/:../inotify/:../signals/:../timers/:../procexec/:../threads/:../pgsjc/:../procpri/:../procres/:../daemons/:../cap/:../loginacct/:../shlibs/:../pipes:../svipc/:../svmsg/:../svsem/:../svshm/:../mmap/:../vmem:../sockets/:../tty/:../altio/:../pty/
 
 CC=gcc
 #CFLAGS=
-IDIR=. ../lib/
+IDIR=. ../lib/ ../sockets/ ../daemons/ ../tty/ ../pty/
 LDIR=
 
 empty :=
@@ -30,7 +30,13 @@ BIN = t_unlink list_files testoffset nftw_dir_tree view_symlink\
 	  utmpx_login view_lastlog dynload simple_pipe pipe_sync\
 	  pipe_ls_wc popen_glob fifo_seqnum_server fifo_seqnum_client\
 	  svmsg_create svmsg_send svmsg_receive svmsg_rm svmsg_chqbytes\
-	  svmsg_ls svmsg_file_server svmsg_file_client
+	  svmsg_ls svmsg_file_server svmsg_file_client svsem_mon\
+	  svsem_demo svsem_setall svsem_op svsem_create svsem_rm\
+	  svsem_ls svshm_xfr_write svshm_xfr_read svshm_create svshm_attach\
+	  svshm_rm svshm_ls svshm_show t_mmap anon_mmap mmcp t_mprotect\
+	  memlock us_xfr_sv us_xfr_cl i6d_ucase_cl i6d_ucase_sv is_seqnum_sv \
+	  is_seqnum_cl id_echo_sv id_echo_cl is_echo_inetd_sv is_echo_sv\
+	  socknames test_tty_functions t_select poll_pipes script
 
 .PHONY:all
 
@@ -45,6 +51,108 @@ tt += $(OBJS)
 .PHONY : test
 test:
 	@echo $(tt)
+
+script : script.o tty_functions.o pty_fork.o pty_master_open.o  $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR) -lpthread
+
+poll_pipes : poll_pipes.o tty_functions.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR) -lpthread 
+
+t_select : t_select.o tty_functions.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR) -lpthread 
+
+test_tty_functions : test_tty_functions.o tty_functions.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR) -lpthread 
+
+socknames : socknames.o inet_sockets.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR) -lpthread 
+
+is_echo_sv : is_echo_sv.o inet_sockets.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR) -lpthread 
+
+is_echo_inetd_sv : is_echo_inetd_sv.o inet_sockets.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR) 
+
+id_echo_cl : id_echo_cl.o inet_sockets.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR) 
+
+id_echo_sv : id_echo_sv.o inet_sockets.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR) 
+
+is_seqnum_cl : is_seqnum_cl.o read_line.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR) 
+
+is_seqnum_sv : is_seqnum_sv.o read_line.o $(OBJS)
+	$(CC)  $^ -o $@ $(CIDIR) $(CLDIR) 
+
+i6d_ucase_sv : i6d_ucase_sv.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR) 
+
+i6d_ucase_cl : i6d_ucase_cl.o $(OBJS)
+	$(CC)  $^ -o $@ $(CIDIR) $(CLDIR) 
+
+us_xfr_cl : us_xfr_cl.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+us_xfr_sv : us_xfr_sv.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+memlock : memlock.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+t_mprotect : t_mprotect.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+mmcp : mmcp.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+anon_mmap : anon_mmap.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR) -DUSE_MAP_ANON
+
+t_mmap : t_mmap.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svshm_ls : svshm_ls.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svshm_show : svshm_show.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svshm_create: svshm_create.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svshm_attach : svshm_attach.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svshm_rm : svshm_rm.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svshm_xfr_write : svshm_xfr_write.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svshm_xfr_read : svshm_xfr_read.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svsem_ls : svsem_ls.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svsem_rm : svsem_rm.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svsem_create : svsem_create.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svsem_op : svsem_op.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svsem_setall : svsem_setall.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svsem_demo : svsem_demo.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
+
+svsem_mon : svsem_mon.o $(OBJS)
+	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
 
 svmsg_file_client : svmsg_file_client.o $(OBJS)
 	$(CC) $^ -o $@ $(CIDIR) $(CLDIR)
